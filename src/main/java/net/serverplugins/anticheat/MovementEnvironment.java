@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BoundingBox;
@@ -19,7 +20,8 @@ final class MovementEnvironment {
                 || player.hasPotionEffect(PotionEffectType.LEVITATION)
                 || player.hasPotionEffect(PotionEffectType.SLOW_FALLING)
                 || player.hasPotionEffect(PotionEffectType.JUMP_BOOST)
-                || player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE);
+                || player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE)
+                || player.getInventory().getItemInMainHand().containsEnchantment(Enchantment.LUNGE);
     }
 
     static boolean specialBlocks(Location location) {

@@ -1,5 +1,7 @@
 package net.serverplugins.anticheat;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.AttackRange;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -102,7 +104,10 @@ final class AnticheatService {
         BoundingBox box = target.getBoundingBox();
         double distance = CheckMath.distanceToBox(eye.getX(), eye.getY(), eye.getZ(),
                 box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ());
-        double limit = CheckMath.reachAllowance(attribute(attacker, Attribute.PLAYER_ENTITY_INTERACTION_RANGE, 3),
+        AttackRange range = attacker.getInventory().getItemInMainHand().getData(DataComponentTypes.ATTACK_RANGE);
+        double interactionRange = range == null ? attribute(attacker, Attribute.ENTITY_INTERACTION_RANGE, 3)
+                : range.maxReach() + range.hitboxMargin();
+        double limit = CheckMath.reachAllowance(interactionRange,
                 settings.reachExtra(), settings.reachLatencyAllowance(), attacker.getPing() + target.getPing());
         return distance > limit && flag(attacker, CheckType.REACH, format("distance %.2f, limit %.2f", distance, limit));
     }
@@ -147,7 +152,7 @@ final class AnticheatService {
         double dz = current.getZ() - previous.getZ();
         double distance = Math.hypot(dx, dz);
         double speedLimit = CheckMath.speedAllowance(settings.speedLimit(), settings.speedTolerance(),
-                attribute(player, Attribute.GENERIC_MOVEMENT_SPEED, 0.1), elapsedTicks);
+                attribute(player, Attribute.MOVEMENT_SPEED, 0.1), elapsedTicks);
         boolean speedInvalid = settings.speedEnabled() && distance > speedLimit;
         if (speedInvalid && flag(player, CheckType.SPEED, format("distance %.2f, limit %.2f", distance, speedLimit))) {
             if (!player.isOnline() || tick < data.graceUntil) {
@@ -155,8 +160,8 @@ final class AnticheatService {
             }
         }
         boolean supported = MovementEnvironment.supported(player);
-        boolean flightExempt = attribute(player, Attribute.GENERIC_GRAVITY, 0.08) < 0.079
-                || attribute(player, Attribute.GENERIC_JUMP_STRENGTH, 0.42) > 0.43;
+        boolean flightExempt = attribute(player, Attribute.GRAVITY, 0.08) < 0.079
+                || attribute(player, Attribute.JUMP_STRENGTH, 0.42) > 0.43;
         data.hoverTicks = CheckMath.hoverTicks(data.hoverTicks, current.getY() - previous.getY(), elapsedTicks,
                 settings.minimumFall(), supported || flightExempt);
         boolean flightInvalid = settings.flightEnabled() && data.hoverTicks > settings.hoverTicks();
