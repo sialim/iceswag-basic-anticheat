@@ -1,0 +1,22 @@
+name: BasicAnticheat
+version: '${version}'
+main: net.serverplugins.anticheat.BasicAnticheatPlugin
+api-version: '1.21'
+description: Configurable speed, flight, and combat reach checks.
+commands:
+  basicac:
+    description: Manage anticheat checks and alerts.
+    aliases: [bac]
+    usage: /basicac <alerts|reload|status|reset|test>
+permissions:
+  basicanticheat.admin:
+    description: Allows reloading, inspecting, resetting, and testing the anticheat.
+    default: op
+    children:
+      basicanticheat.alerts: true
+  basicanticheat.alerts:
+    description: Allows receiving and toggling anticheat alerts.
+    default: op
+  basicanticheat.bypass:
+    description: Bypasses all anticheat checks.
+    default: false
